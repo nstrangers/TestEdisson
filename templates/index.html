@@ -9,20 +9,32 @@
 {% if data.status == False %}
     <form action="/" method="post">
         <label>Загадай двузначное число</label>
-        <input type="hidden" name="answer" value="-100"/>
+        <input type="hidden" name="answer"/>
         <input type="hidden" name="control" value="0"/>
         <input type="submit" value="Загадал" />
     </form>
+<p>
 {% else %}
     <form action="/" method="post">
         <input type="number" name="answer" />
         <input type="hidden" name="control" value="1"/>
         <input type="submit" value="Отправить" />
     </form>
+<br>
+Догадки экстрасенсов:
+<br>
+<table>
+    <tr>
+    {% for extrasense in data.extrasenses %}
+      <td>{{ extrasense.answer[-1] }}</td>
+    {% endfor %}
+    </tr>
+</table>
+
 {% endif %}
-</br>
+<br>
 Загаданные числа:
-</br>
+<br>
 {{ data.user }}
 <p>
 История догадок экстрасенсов:
@@ -30,10 +42,16 @@
     {% for extrasense in data.extrasenses %}
   <tr>
 
-      <td>{{ extrasense }}</td>
-
+        {% if data.status == False %}
+            <td>{{ extrasense.answer }}</td>
+        {% else %}
+            <td>{{ extrasense.answer[:-1] }}</td>
+        {% endif %}
+        <td>Рейтинг:</td>
+        <td>{{ extrasense.rating }}</td>
   </tr>
     {% endfor %}
+
 </table>
 
 

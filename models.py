@@ -1,13 +1,18 @@
-class Person():
+class User:
     def __init__(self):
         self.answer = []
-        self.rating = 50
 
     def add_answer(self, answer):
         self.answer.append(answer)
 
-    def match(self, made_up, solution):
-        if made_up == solution:
+
+class Person(User):
+    def __init__(self):
+        super().__init__()
+        self.rating = 50
+
+    def match(self, madeup, solution):
+        if madeup == solution:
             self.rating += 1
         else:
             self.rating -= 1
