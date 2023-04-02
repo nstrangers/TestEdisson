@@ -5,19 +5,19 @@
     <title>Экстрасенсы</title>
 </head>
 <body>
-
 {% if data.status == False %}
     <form action="/" method="post">
         <label>Загадай двузначное число</label>
-        <input type="hidden" name="answer"/>
-        <input type="hidden" name="control" value="0"/>
+        <input type="hidden" name="answer" value/>
+        <input type="hidden" name="enter_answer" value="0"/>
         <input type="submit" value="Загадал" />
     </form>
 <p>
 {% else %}
+    {{ error_message }}
     <form action="/" method="post">
         <input type="number" name="answer" />
-        <input type="hidden" name="control" value="1"/>
+        <input type="hidden" name="enter_answer" value="1"/>
         <input type="submit" value="Отправить" />
     </form>
 <br>
