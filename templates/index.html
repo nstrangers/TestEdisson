@@ -9,7 +9,6 @@
     <form action="/" method="post">
         <label>Загадай двузначное число</label>
         <input type="hidden" name="answer" value/>
-        <input type="hidden" name="enter_answer" value="0"/>
         <input type="submit" value="Загадал" />
     </form>
 <p>
@@ -17,7 +16,6 @@
     {{ error_message }}
     <form action="/" method="post">
         <input type="number" name="answer" />
-        <input type="hidden" name="enter_answer" value="1"/>
         <input type="submit" value="Отправить" />
     </form>
 <br>
@@ -26,7 +24,7 @@
 <table>
     <tr>
     {% for extrasense in data.extrasenses %}
-      <td>{{ extrasense.answer[-1] }}</td>
+      <td>{{ extrasense.guess[-1] }}</td>
     {% endfor %}
     </tr>
 </table>
@@ -43,9 +41,9 @@
   <tr>
 
         {% if data.status == False %}
-            <td>{{ extrasense.answer }}</td>
+            <td>{{ extrasense.guess }}</td>
         {% else %}
-            <td>{{ extrasense.answer[:-1] }}</td>
+            <td>{{ extrasense.guess[:-1] }}</td>
         {% endif %}
         <td>Рейтинг:</td>
         <td>{{ extrasense.rating }}</td>
