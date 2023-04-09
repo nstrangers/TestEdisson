@@ -3,10 +3,9 @@ from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from starlette.middleware.sessions import SessionMiddleware
 
-from random import randint
-
 from models import Person, User
-from serializer import serializer, deserializer
+from exceptions import InvalidAnswer
+from serializers import serialize, deserialize
 
 
 app = FastAPI()
@@ -21,50 +20,49 @@ async def get_session(request: Request):
 
 
 @app.post('/', response_class=HTMLResponse)
-async def main_loop(
+async def get_user_answer(
         request: Request,
         answer: int = Form(default=None),
-        enter_answer: int = Form(),
         session_data: dict = Depends(get_session)
 ):
 
-    error_message = ''
-
     #получение объектов
     if session_data:
-        user = deserializer(request, 'class_user')
-        extrasenses = deserializer(request, 'class_extrasenses')
-        status = request.session.get('status')
+        user = deserialize(session_data['class_user'])
+        extrasenses = deserialize(session_data['class_extrasenses'])
+        status = session_data['status']
     else:
         extrasenses = [Person() for i in range(NUMBER_OF_EXTRASENSE)]
         user = User()
         status = False
 
     # обработка данных из формы
-    if enter_answer == 0:
+    error_message = ''
+    if not status:
         for extrasens in extrasenses:
-            extrasens.add_answer(randint(10, 99))
+            extrasens.add_guess()
         status = True
-
-    if enter_answer == 1:
+    else:
         try:
-            user.validate_answer(answer)
-        except TypeError:
-            error_message = 'Введенные данные должны быть целым числом'
-        except ValueError:
-            error_message = 'Число должно быть двухзначным'
+            if not isinstance(answer, int):
+                raise InvalidAnswer('Загаданное число должно быть целым числом')
+            if answer < 10 or answer > 99:
+                raise InvalidAnswer('Загаданное число должно быть двузначным')
+
+        except InvalidAnswer as error_msg:
+            error_message = error_msg
+
         else:
             user.add_answer(answer)
             for extrasens in extrasenses:
-                extrasens.match(extrasens.answer[-1], answer)
+                extrasens.change_rating(answer)
             status = False
 
     data = get_data_for_templates(user, extrasenses, status)
-
     #запись данных в сессию
     session_data['status'] = status
-    session_data['class_extrasenses'] = serializer(extrasenses)
-    session_data['class_user'] = serializer(user)
+    session_data['class_extrasenses'] = serialize(extrasenses)
+    session_data['class_user'] = serialize(user)
 
     return templates.TemplateResponse('index.html',
         {'request': request, 'data': data, 'error_message': error_message}
@@ -72,13 +70,13 @@ async def main_loop(
 
 
 @app.get('/', response_class=HTMLResponse)
-async def formation_start_page(request: Request, session_data: dict = Depends(get_session)):
+async def start_page(request: Request, session_data: dict = Depends(get_session)):
     session_data = session_data or {}
     data = {}
 
     if session_data:
-        user = deserializer(request, 'class_user')
-        extrasenses = deserializer(request, 'class_extrasenses')
+        user = deserialize(session_data['class_user'])
+        extrasenses = deserialize(session_data['class_extrasenses'])
         status = session_data['status']
         data = get_data_for_templates(user, extrasenses, status)
     else:

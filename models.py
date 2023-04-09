@@ -1,3 +1,5 @@
+from random import randint
+
 class User:
     def __init__(self, answer=None):
         if answer is None:
@@ -7,20 +9,20 @@ class User:
     def add_answer(self, answer):
         self.answer.append(answer)
 
-    def validate_answer(self, answer):
-        if not isinstance(answer, int):
-            raise TypeError("Answer must be an integer.")
-        if answer < 10 or answer > 99:
-            raise ValueError("Аnswer must be between 10 and 99")
-
-
-class Person(User):
-    def __init__(self, rating=50):
-        super().__init__()
+class Person:
+    def __init__(self, rating=50,  guess=None):
+        if guess is None:
+            guess = []
+        self.guess = guess
         self.rating = rating
 
-    def match(self, madeup, solution):
-        if madeup == solution:
+    def add_guess(self):
+        guess = randint(10, 99)
+        self.guess.append(guess)
+
+    def change_rating(self, answer):
+        if answer == self.guess[-1]:
             self.rating += 1
         else:
             self.rating -= 1
+
